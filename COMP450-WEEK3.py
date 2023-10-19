@@ -275,57 +275,58 @@ class Tic_Tac_Toe():
         return best_move
 
     def click(self, event):
-        if not self.gameover and event.widget == self.canvas:
-            grid_position = [event.x, event.y]
-            logical_position = self.convert_grid_to_logical_position(
-                grid_position)
-            if not self.reset_board:
-                if self.player_X_turns:
-                    if not self.is_grid_occupied(logical_position):
-                        self.draw_X(logical_position)
-                        self.board_status[logical_position[0]
-                                          ][logical_position[1]] = -1
-                        winner = self.is_winner()
-                        if winner:
-                            self.gameover = True
-                            if winner == -1:
-                                self.window.after(
-                                    200, lambda: self.display_gameover('X'))
-                                return
-                            else:
-                                self.window.after(
-                                    200, lambda: self.display_gameover('O'))
-                                return
-                        else:
-                            if len(np.where(self.board_status == 0)[0]) == 0:
+        if (str(self.algorithm_choice.get()) != "None"):
+            if not self.gameover and event.widget == self.canvas:
+                grid_position = [event.x, event.y]
+                logical_position = self.convert_grid_to_logical_position(
+                    grid_position)
+                if not self.reset_board:
+                    if self.player_X_turns:
+                        if not self.is_grid_occupied(logical_position):
+                            self.draw_X(logical_position)
+                            self.board_status[logical_position[0]
+                                              ][logical_position[1]] = -1
+                            winner = self.is_winner()
+                            if winner:
                                 self.gameover = True
-                                self.window.after(
-                                    200, lambda: self.display_gameover('tie'))
-                                return
-
-                        self.control_frame.pack_forget()
-
-                        self.player_X_turns = not self.player_X_turns
-                        self.computer_play()
-
-                        self.player_X_turns = True
-                        winner = self.is_winner()
-                        if winner:
-                            self.gameover = True
-                            if winner == 1:
-                                self.window.after(
-                                    200, lambda: self.display_gameover('O'))
-                                return
+                                if winner == -1:
+                                    self.window.after(
+                                        200, lambda: self.display_gameover('X'))
+                                    return
+                                else:
+                                    self.window.after(
+                                        200, lambda: self.display_gameover('O'))
+                                    return
                             else:
-                                self.window.after(
-                                    200, lambda: self.display_gameover('tie'))
-                                return
-        else:
+                                if len(np.where(self.board_status == 0)[0]) == 0:
+                                    self.gameover = True
+                                    self.window.after(
+                                        200, lambda: self.display_gameover('tie'))
+                                    return
 
-            self.canvas.delete("all")
-            self.play_again()
-            self.reset_board = False
-            self.gameover = False
+                            self.control_frame.pack_forget()
+
+                            self.player_X_turns = not self.player_X_turns
+                            self.computer_play()
+
+                            self.player_X_turns = True
+                            winner = self.is_winner()
+                            if winner:
+                                self.gameover = True
+                                if winner == 1:
+                                    self.window.after(
+                                        200, lambda: self.display_gameover('O'))
+                                    return
+                                else:
+                                    self.window.after(
+                                        200, lambda: self.display_gameover('tie'))
+                                    return
+            else:
+
+                self.canvas.delete("all")
+                self.play_again()
+                self.reset_board = False
+                self.gameover = False
 
 
 game_instance = Tic_Tac_Toe()
