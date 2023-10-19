@@ -44,11 +44,13 @@ class Tic_Tac_Toe():
         self.control_frame = Frame(self.window)
         self.control_frame.pack(side=TOP)
 
-        self.algorithm_choice = StringVar(value="rule")
+        self.algorithm_choice = StringVar(value="None")
+        Radiobutton(self.control_frame, text="None",
+                    variable=self.algorithm_choice, value="None").pack(side=LEFT, padx=20)
         Radiobutton(self.control_frame, text="Rule-Based",
-                    variable=self.algorithm_choice, value="rule").pack(side=LEFT, padx=20)
+                    variable=self.algorithm_choice, value="Rule-Based", command=self.ChangeTitle).pack(side=LEFT, padx=20)
         Radiobutton(self.control_frame, text="HeuristicAStar",
-                    variable=self.algorithm_choice, value="HeuristicAStar").pack(side=LEFT, padx=20)
+                    variable=self.algorithm_choice, value="HeuristicAStar", command=self.ChangeTitle).pack(side=LEFT, padx=20)
 
     def mainloop(self):
         self.window.mainloop()
@@ -128,6 +130,13 @@ class Tic_Tac_Toe():
         score_text = 'Click to play again \n'
         self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray",
                                 text=score_text)
+
+    def ChangeTitle(self):
+        if (str(self.algorithm_choice.get()) == "HeuristicAStar"):
+            title = "Playing Against A* Agent"
+        else:
+            title = "Playing Against Rule-Based Agent"
+        self.window.title("Tic-Tac-Toe" + " - " + title)
 
     def convert_logical_to_grid_position(self, logical_position):
         logical_position = np.array(logical_position, dtype=int)
@@ -266,13 +275,6 @@ class Tic_Tac_Toe():
         return best_move
 
     def click(self, event):
-        """
-        if (str(self.algorithm_choice.get()) == "HeuristicAStar"):
-            title = "Playing Against A* Agent"
-        else:
-            title = "Playing Against Rule-Based Agent"
-        self.window.title(self.window.title() + " - " + title)
-        """
         if not self.gameover and event.widget == self.canvas:
             grid_position = [event.x, event.y]
             logical_position = self.convert_grid_to_logical_position(
@@ -301,13 +303,11 @@ class Tic_Tac_Toe():
                                     200, lambda: self.display_gameover('tie'))
                                 return
 
-                        # Hide the radio buttons after player X has played
                         self.control_frame.pack_forget()
 
-                        # Now computer's turn to play
                         self.player_X_turns = not self.player_X_turns
                         self.computer_play()
-                        # Set back to player's turn after computer has played
+
                         self.player_X_turns = True
                         winner = self.is_winner()
                         if winner:
