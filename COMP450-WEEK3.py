@@ -102,7 +102,7 @@ class Tic_Tac_Toe():
         else:
             tempTieScore = self.tie_score
             self.tie_score += 1
-            text = 'It\'s a tie'
+            text = 'Its a tie'
             color = 'gray'
 
         self.canvas.delete("all")
@@ -115,7 +115,7 @@ class Tic_Tac_Toe():
 
         score_text = '           Scores \n'
         score_text += 'Player 1 (X)\t:' + str(self.X_score) + '\n'
-        score_text += 'Player 2 (O)\t:' + str(self.O_score) + '\n'
+        score_text += 'Agent (O)\t:' + str(self.O_score) + '\n'
         score_text += 'Tie\t\t:' + str(self.tie_score)
 
         if (not (winner == 'X')) and (not (winner == 'O')):
