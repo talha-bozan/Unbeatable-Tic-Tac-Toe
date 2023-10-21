@@ -48,9 +48,9 @@ class Tic_Tac_Toe():
         Radiobutton(self.control_frame, text="None",
                     variable=self.algorithm_choice, value="None").pack(side=LEFT, padx=20)
         Radiobutton(self.control_frame, text="Rule-Based",
-                    variable=self.algorithm_choice, value="Rule-Based", command=self.ChangeTitle).pack(side=LEFT, padx=20)
-        Radiobutton(self.control_frame, text="HeuristicAStar",
-                    variable=self.algorithm_choice, value="HeuristicAStar", command=self.ChangeTitle).pack(side=LEFT, padx=20)
+                    variable=self.algorithm_choice, value="Rule-Based", command=self.change_title).pack(side=LEFT, padx=20)
+        Radiobutton(self.control_frame, text="heuristic_a_star",
+                    variable=self.algorithm_choice, value="heuristic_a_star", command=self.change_title).pack(side=LEFT, padx=20)
 
     def mainloop(self):
         self.window.mainloop()
@@ -93,7 +93,7 @@ class Tic_Tac_Toe():
             color = symbol_X_color
         elif winner == 'O':
             self.O_score += 1
-            if (self.algorithm_choice.get() == "HeuristicAStar"):
+            if (self.algorithm_choice.get() == "heuristic_a_star"):
                 text = 'Winner: A* Agent (O)'
                 color = symbol_O_color
             else:
@@ -131,8 +131,8 @@ class Tic_Tac_Toe():
         self.canvas.create_text(size_of_board / 2, 15 * size_of_board / 16, font="cmr 20 bold", fill="gray",
                                 text=score_text)
 
-    def ChangeTitle(self):
-        if (str(self.algorithm_choice.get()) == "HeuristicAStar"):
+    def change_title(self):
+        if (str(self.algorithm_choice.get()) == "heuristic_a_star"):
             title = "Playing Against A* Agent"
         else:
             title = "Playing Against Rule-Based Agent"
@@ -152,40 +152,34 @@ class Tic_Tac_Toe():
         else:
             return True
 
-    def is_winner(self):
+    def winner_check(self):
         for combo in winning_combinations:
             if self.board_status.reshape(9)[combo[0]] == self.board_status.reshape(9)[combo[1]] == \
                     self.board_status.reshape(9)[combo[2]] != 0:
                 return self.board_status.reshape(9)[combo[0]]
-
         return 0
 
-    def computer_play(self):
-
-        # Check if 'O' can win in the next move and place 'O' there
+    def ai_play(self):
         for i in range(3):
             for j in range(3):
                 if self.board_status[i][j] == 0:
                     self.board_status[i][j] = 1
-                    if self.is_winner() == 1:
+                    if self.winner_check() == 1:
                         self.draw_O([i, j])
                         return
                     self.board_status[i][j] = 0
-
-        # Check if 'X' can win in the next move and block it
         for i in range(3):
             for j in range(3):
                 if self.board_status[i][j] == 0:
                     self.board_status[i][j] = -1
-                    if self.is_winner() == -1:
+                    if self.winner_check() == -1:
                         self.board_status[i][j] = 1
                         self.draw_O([i, j])
                         return
                     self.board_status[i][j] = 0
 
-        # Check for center availability
-        if self.algorithm_choice.get() == "HeuristicAStar":
-            best_move = self.find_best_move()
+        if self.algorithm_choice.get() == "heuristic_a_star":
+            best_move = self.best_attack()
             self.draw_O(best_move)
             self.board_status[best_move[0]][best_move[1]] = 1
             return
@@ -195,7 +189,6 @@ class Tic_Tac_Toe():
             self.draw_O([1, 1])
             return
 
-        # Check for corner and opposite corner strategy
         corner_positions = [(0, 0), (0, 2), (2, 0), (2, 2)]
         for corner in corner_positions:
             if self.board_status[corner[0]][corner[1]] == -1:
@@ -206,7 +199,6 @@ class Tic_Tac_Toe():
                     self.draw_O(opposite_corner)
                     return
 
-        # Check for corner and center strategy
         for corner in corner_positions:
             if self.board_status[corner[0]][corner[1]] == -1:
                 side_positions = [(0, 1), (1, 0), (1, 2), (2, 1)]
@@ -216,7 +208,6 @@ class Tic_Tac_Toe():
                         self.draw_O(side)
                         return
 
-        # Choose any empty corner or side
         for i in range(3):
             for j in range(3):
                 if self.board_status[i][j] == 0:
@@ -224,10 +215,9 @@ class Tic_Tac_Toe():
                     self.draw_O([i, j])
                     return
 
-    def HeuristicAStar(self, board, depth, is_maximizing):
-        winner = self.is_winner()
+    def heuristic_a_star(self, board, depth, is_maximizing):
+        winner = self.winner_check()
 
-        # Check if current board state is a terminal state and return a value accordingly
         if winner != 0:
             if winner == 1:
                 return -10 + depth
@@ -243,7 +233,7 @@ class Tic_Tac_Toe():
                 for j in range(3):
                     if board[i][j] == 0:
                         board[i][j] = -1
-                        eval = self.HeuristicAStar(board, depth + 1, False)
+                        eval = self.heuristic_a_star(board, depth + 1, False)
                         board[i][j] = 0
                         max_eval = max(max_eval, eval)
             return max_eval
@@ -253,19 +243,19 @@ class Tic_Tac_Toe():
                 for j in range(3):
                     if board[i][j] == 0:
                         board[i][j] = 1
-                        eval = self.HeuristicAStar(board, depth + 1, True)
+                        eval = self.heuristic_a_star(board, depth + 1, True)
                         board[i][j] = 0
                         min_eval = min(min_eval, eval)
             return min_eval
 
-    def find_best_move(self):
+    def best_attack(self):
         best_move = (-1, -1)
         best_value = float('-inf')
         for i in range(3):
             for j in range(3):
                 if self.board_status[i][j] == 0:
                     self.board_status[i][j] = -1
-                    move_value = self.HeuristicAStar(
+                    move_value = self.heuristic_a_star(
                         self.board_status, 0, False)
                     self.board_status[i][j] = 0
 
@@ -286,7 +276,7 @@ class Tic_Tac_Toe():
                             self.draw_X(logical_position)
                             self.board_status[logical_position[0]
                                               ][logical_position[1]] = -1
-                            winner = self.is_winner()
+                            winner = self.winner_check()
                             if winner:
                                 self.gameover = True
                                 if winner == -1:
@@ -307,10 +297,10 @@ class Tic_Tac_Toe():
                             self.control_frame.pack_forget()
 
                             self.player_X_turns = not self.player_X_turns
-                            self.computer_play()
+                            self.ai_play()
 
                             self.player_X_turns = True
-                            winner = self.is_winner()
+                            winner = self.winner_check()
                             if winner:
                                 self.gameover = True
                                 if winner == 1:
